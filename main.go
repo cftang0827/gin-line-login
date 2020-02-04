@@ -23,7 +23,12 @@ func main() {
 	r.GET("/line-login", func(c *gin.Context) {
 		state := "test"
 		log.Println(("Hello"))
-		url := fmt.Sprintf("https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s&scope=%s", clientID, callBackURL, state, "email%20openid%20profile")
+		url := fmt.Sprintf("https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=%s&redirect_uri=%s&state=%s&scope=%s",
+			clientID,
+			callBackURL,
+			state,
+			"email%20openid%20profile"
+		)
 		c.Redirect(http.StatusMovedPermanently, url)
 	})
 
