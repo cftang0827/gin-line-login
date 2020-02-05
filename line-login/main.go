@@ -4,18 +4,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
 	"log"
 	"net/http"
+	"os"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
 )
 
-var clientID = "XXXXXXXXX"
+var clientID = os.Getenv("LineClientID")
 var callBackURL = "http://localhost:8080/callback"
-var clientSecret = "XXXXXXXXXXXXXXXXXXXX"
+var clientSecret = os.Getenv("LineClientSecret")
 
 func main() {
 	r := gin.Default()
@@ -51,9 +51,9 @@ func main() {
 		json.Unmarshal([]byte(body), &bodyjSON)
 		log.Println("Already get the access token")
 		// accessToken := bodyjSON["access_token"]
-		idTooken := bodyjSON["id_token"].(string)
+		idToken := bodyjSON["id_token"].(string)
 
-		token, _ := jwt.Parse(idTooken, func(token *jwt.Token) (interface{}, error) {
+		token, _ := jwt.Parse(idToken, func(token *jwt.Token) (interface{}, error) {
 			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -65,9 +65,11 @@ func main() {
 
 		name := token.Claims.(jwt.MapClaims)["name"]
 		img := token.Claims.(jwt.MapClaims)["picture"]
+		email := token.Claims.(jwt.MapClaims)["email"]
 		c.JSON(http.StatusOK, gin.H{
-			"name": name,
-			"img":  img,
+			"name":  name,
+			"img":   img,
+			"email": email,
 		})
 
 	})
