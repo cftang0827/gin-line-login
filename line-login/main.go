@@ -8,17 +8,36 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/unrolled/secure"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
 )
 
 var clientID = os.Getenv("LineClientID")
-var callBackURL = "http://localhost:8080/callback"
+var callBackURL = "https://localhost:8080/callback"
 var clientSecret = os.Getenv("LineClientSecret")
 
+func tlsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     "localhost:8080",
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+
+		// If there was an error, do not continue.
+		if err != nil {
+			return
+		}
+
+		c.Next()
+	}
+}
 func main() {
 	r := gin.Default()
+	r.Use(tlsHandler())
 
 	r.GET("/line-login", func(c *gin.Context) {
 		state := "test"
@@ -74,5 +93,5 @@ func main() {
 
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.RunTLS(":8080", "localhost.crt", "localhost.key") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
