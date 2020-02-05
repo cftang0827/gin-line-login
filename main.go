@@ -26,7 +26,7 @@ func main() {
 			clientID,
 			callBackURL,
 			state,
-			"email%20openid%20profile"
+			"email%20openid%20profile",
 		)
 		c.Redirect(http.StatusMovedPermanently, url)
 	})
